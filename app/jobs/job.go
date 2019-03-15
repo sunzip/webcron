@@ -9,10 +9,10 @@ import (
 	//"github.com/axgle/mahonia"
 	"html/template"
 	"os/exec"
+	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
-	"runtime"
 )
 
 var mailTpl *template.Template
@@ -71,26 +71,26 @@ func NewCommandJob(id int, name string, command string) *Job {
 		bufErr := new(bytes.Buffer)
 		//cmd := exec.Command("cmd", "/C", "del", "D:\\a.txt")
 		//cmd := exec.Command("cmd", "/C","c:")
-		os:=runtime.GOOS
+		os := runtime.GOOS
 		/*
-		fmt.Println(runtime.GOOS)
-		fmt.Println(runtime.GOARCH)
+			fmt.Println(runtime.GOOS)
+			fmt.Println(runtime.GOARCH)
 
-		Win7 64bit系统：
-		windows
-		amd64
+			Win7 64bit系统：
+			windows
+			amd64
 
-		macOS(10.13.4) 64bit系统：
-		darwin
-		amd64 
+			macOS(10.13.4) 64bit系统：
+			darwin
+			amd64
 		*/
 		var cmd *exec.Cmd
-		if os=="windows" {
+		if os == "windows" {
 			cmd = exec.Command("cmd", "/C", command)
 			//cmd := exec.Command("cmd", "/C", "C:/Users/city/Desktop/doc/kettleWebCronTest/job/kettle运行.bat")
 			//可以执行,日志是乱码,执行完页面报错
-		//cmd := exec.Command("cmd", "/C", "'G:/exework/kettle-pdi-ce-7.0.0.0-25/data-integration/kitchen.bat' /file:'C:/Users/city/Desktop/doc/kettleWebCronTest/job/kettleJob.kjb' /level:Error>>'C:/Users/city/Desktop/doc/kettleWebCronTest/job/log.log'")//可以执行,日志是乱码,执行完页面报错
-		//cmd := exec.Command("/bin/bash", "-c", command)
+			//cmd := exec.Command("cmd", "/C", "'G:/exework/kettle-pdi-ce-7.0.0.0-25/data-integration/kitchen.bat' /file:'C:/Users/city/Desktop/doc/kettleWebCronTest/job/kettleJob.kjb' /level:Error>>'C:/Users/city/Desktop/doc/kettleWebCronTest/job/log.log'")//可以执行,日志是乱码,执行完页面报错
+			//cmd := exec.Command("/bin/bash", "-c", command)
 		} else {
 			cmd = exec.Command("/bin/bash", "-c", command)
 		}
@@ -177,11 +177,11 @@ func (j *Job) Run() {
 		//beego.Debug(fmt.Sprintf("2.开始执行任务: %x", cmdErr))
 		//fmt.Println(cmdErr)
 
-		log.Error = err.Error() + ":" + cmdErr	//原始
+		log.Error = err.Error() + ":" + cmdErr //原始
 	}
 	/*
-	涓�鏈� 16, 2019 8:31:49 涓嬪崍 org.apache.karaf.main.Main$KarafLockCallback lockAquired
-淇℃伅: Lock acquired. Setting startlevel to 100
+		涓�鏈� 16, 2019 8:31:49 涓嬪崍 org.apache.karaf.main.Main$KarafLockCallback lockAquired
+	淇℃伅: Lock acquired. Setting startlevel to 100
 	*/
 	//log.Output=dec.ConvertString(log.Output)
 	//log.Error=strings.Replace(log.Error,"exit status 1:","",1)
@@ -203,6 +203,7 @@ func (j *Job) Run() {
 	j.task.PrevTime = t.Unix()
 	j.task.ExecuteTimes++
 	j.task.Update("PrevTime", "ExecuteTimes")
+	j.task.title
 
 	// 发送邮件通知
 	if (j.task.Notify == 1 && err != nil) || j.task.Notify == 2 {
@@ -222,15 +223,16 @@ func (j *Job) Run() {
 		data["output"] = cmdOut
 
 		if isTimeout {
-			title = fmt.Sprintf("任务执行结果通知 #%d: %s", j.task.Id, "超时")
+			title = fmt.Sprintf("#%d: %s", j.task.Id, "超时")
 			data["status"] = fmt.Sprintf("超时（%d秒）", int(timeout/time.Second))
 		} else if err != nil {
-			title = fmt.Sprintf("任务执行结果通知 #%d: %s", j.task.Id, "失败")
+			title = fmt.Sprintf("#%d: %s", j.task.Id, "失败")
 			data["status"] = "失败（" + err.Error() + "）"
 		} else {
-			title = fmt.Sprintf("任务执行结果通知 #%d: %s", j.task.Id, "成功")
+			title = fmt.Sprintf("#%d: %s", j.task.Id, "成功")
 			data["status"] = "成功"
 		}
+		title = j.task.TaskName + "-任务执行结果通知 " + title
 
 		content := new(bytes.Buffer)
 		mailTpl.Execute(content, data)

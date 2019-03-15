@@ -34,3 +34,5 @@ end. 解决
 本机设置了:
 D:\Program Files\Java\jdk1.8.0_131
 注意需要重启
+
+4. 发送通知邮件没有任务名称,已处理在job.go
