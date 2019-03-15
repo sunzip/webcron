@@ -4,13 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/astaxie/beego"
-	"github.com/lisijie/webcron/app/mail"
-	"github.com/lisijie/webcron/app/models"
+	"github.com/sunzip/webcron/app/mail"
+	"github.com/sunzip/webcron/app/models"
+	//"github.com/axgle/mahonia"
 	"html/template"
 	"os/exec"
 	"runtime/debug"
 	"strings"
 	"time"
+	"runtime"
 )
 
 var mailTpl *template.Template
@@ -67,12 +69,36 @@ func NewCommandJob(id int, name string, command string) *Job {
 	job.runFunc = func(timeout time.Duration) (string, string, error, bool) {
 		bufOut := new(bytes.Buffer)
 		bufErr := new(bytes.Buffer)
-		cmd := exec.Command("/bin/bash", "-c", command)
+		//cmd := exec.Command("cmd", "/C", "del", "D:\\a.txt")
+		//cmd := exec.Command("cmd", "/C","c:")
+		os:=runtime.GOOS
+		/*
+		fmt.Println(runtime.GOOS)
+		fmt.Println(runtime.GOARCH)
+
+		Win7 64bit系统：
+		windows
+		amd64
+
+		macOS(10.13.4) 64bit系统：
+		darwin
+		amd64 
+		*/
+		var cmd *exec.Cmd
+		if os=="windows" {
+			cmd = exec.Command("cmd", "/C", command)
+			//cmd := exec.Command("cmd", "/C", "C:/Users/city/Desktop/doc/kettleWebCronTest/job/kettle运行.bat")
+			//可以执行,日志是乱码,执行完页面报错
+		//cmd := exec.Command("cmd", "/C", "'G:/exework/kettle-pdi-ce-7.0.0.0-25/data-integration/kitchen.bat' /file:'C:/Users/city/Desktop/doc/kettleWebCronTest/job/kettleJob.kjb' /level:Error>>'C:/Users/city/Desktop/doc/kettleWebCronTest/job/log.log'")//可以执行,日志是乱码,执行完页面报错
+		//cmd := exec.Command("/bin/bash", "-c", command)
+		} else {
+			cmd = exec.Command("/bin/bash", "-c", command)
+		}
 		cmd.Stdout = bufOut
 		cmd.Stderr = bufErr
 		cmd.Start()
 		err, isTimeout := runCmdWithTimeout(cmd, timeout)
-
+		//fmt.Println(err)
 		return bufOut.String(), bufErr.String(), err, isTimeout
 	}
 	return job
@@ -138,13 +164,39 @@ func (j *Job) Run() {
 	log.ProcessTime = int(ut)
 	log.CreateTime = t.Unix()
 
+	//dec := mahonia.NewDecoder("GB18030")//gbk时,error有部分正常了,仍然有乱码,如:
 	if isTimeout {
 		log.Status = models.TASK_TIMEOUT
 		log.Error = fmt.Sprintf("任务执行超过 %d 秒\n----------------------\n%s\n", int(timeout/time.Second), cmdErr)
 	} else if err != nil {
 		log.Status = models.TASK_ERROR
-		log.Error = err.Error() + ":" + cmdErr
+		//errStr:=dec.ConvertString(err.Error())
+		//errStr=fmt.Sprintf("%v",cmdErr)//要获取所有的字符串
+		//log.Error =errStr
+		//beego.Debug(fmt.Sprintf("1.开始执行任务: %v", cmdErr))
+		//beego.Debug(fmt.Sprintf("2.开始执行任务: %x", cmdErr))
+		//fmt.Println(cmdErr)
+
+		log.Error = err.Error() + ":" + cmdErr	//原始
 	}
+	/*
+	涓�鏈� 16, 2019 8:31:49 涓嬪崍 org.apache.karaf.main.Main$KarafLockCallback lockAquired
+淇℃伅: Lock acquired. Setting startlevel to 100
+	*/
+	//log.Output=dec.ConvertString(log.Output)
+	//log.Error=strings.Replace(log.Error,"exit status 1:","",1)
+	//log.Error=log.Error[20 : len(log.Error)-20]
+	//log.Error=dec.ConvertString(log.Error)//error有乱码 sunzip ,将gbk编码的string转换为utf-u编码string
+	//如果直接是utf-8的数据,有影响,所以需要判断是否是gbk编码
+
+	//enc := mahonia.NewEncoder("uft8")
+	//dec=mahonia.NewDecoder("uft8")
+	// _, cdata, _ := dec.Translate([]byte(log.Error), true)
+	// fmt.Println(cdata)
+
+	// log.Error=enc.ConvertString(log.Error)
+
+	//sunzip 有乱码写不进去
 	j.logId, _ = models.TaskLogAdd(log)
 
 	// 更新上次执行时间

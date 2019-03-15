@@ -2,6 +2,7 @@
 
 case $1 in 
 	start)
+		cd /root/software/webcron/
 		nohup ./webcron 2>&1 >> info.log 2>&1 /dev/null &
 		echo "服务已启动..."
 		sleep 1
@@ -14,6 +15,7 @@ case $1 in
 	restart)
 		killall webcron
 		sleep 1
+		cd /root/software/webcron/
 		nohup ./webcron 2>&1 >> info.log 2>&1 /dev/null &
 		echo "服务已重启..."
 		sleep 1

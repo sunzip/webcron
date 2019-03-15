@@ -1,0 +1,36 @@
+1. log.Output
+"
+e:\workspace\GO\src\github.com\sunzip\webcron>g:
+
+G:\>cd G:...+261 more"
+
+
+2. log.Error	存不进
+"exit status 1:ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+��...+11487 more"
+2. log.Error	还是存不进
+"exit status 1:系统找不到指定的路径。
+系统找不到...+12101 more"
+
+3. 原始字符串,包含了gbk和utf-8编码(gbk,utf8),所以无法保存
+	原因可能是bat文件调用bat文件,bat文件的格式不一样造成的?
+
+.开始执行任务: ϵͳ�Ҳ���ָ����·����
+ϵͳ�Ҳ���ָ����·����
+一月 17, 2019 1:48:22 下午 org.apache.karaf.main.Main$KarafLockCallback lockAquired
+信息: Lock acquired. Setting startlevel to 100
+2019-01-17 13:48:31.200:INFO:oejs.Server:jetty-8.1.15.v20140411
+2019-01-17 13:48:31.313:INFO:oejs.AbstractConnector:Started NIOSocketConnectorWrapper@0.0.0.0:9051
+一月 17, 2019 1:48:32 下午 org.apache.cxf.bus.blueprint.NamespaceHandlerRegisterer register
+信息: Registered blueprint namespace handler for http://cxf.apache.org/blueprint/core
+
+
+这种一半乱码,一半正常的拼接字符串,无解了
+
+
+end. 解决
+系统找不到指定的路径。 是没有设置环境变量 _PENTAHO_JAVA|_PENTAHO_JAVA_HOME 引起的
+本机设置了:
+D:\Program Files\Java\jdk1.8.0_131
+注意需要重启

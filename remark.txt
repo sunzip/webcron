@@ -1,0 +1,13 @@
+sunzip
+
+		cmd := exec.Command("cmd", "/C", "C:/Users/city/Desktop/doc/kettle资料整理/job/kettle运行.bat")//可以执行,日志是乱码,执行完页面报错
+
+		如法写入job执行log,原因是 cmdErr 有源码,编码原因
+		\xD7\xCA\xC1\xCF\xD5\xFB
+		
+		
+		
+登录账户
+
+admin
+admin888
