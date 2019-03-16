@@ -180,8 +180,8 @@ func (j *Job) Run() {
 		log.Error = err.Error() + ":" + cmdErr //原始
 	}
 	/*
-		涓�鏈� 16, 2019 8:31:49 涓嬪崍 org.apache.karaf.main.Main$KarafLockCallback lockAquired
-	淇℃伅: Lock acquired. Setting startlevel to 100
+			涓�鏈� 16, 2019 8:31:49 涓嬪崍 org.apache.karaf.main.Main$KarafLockCallback lockAquired
+		淇℃伅: Lock acquired. Setting startlevel to 100
 	*/
 	//log.Output=dec.ConvertString(log.Output)
 	//log.Error=strings.Replace(log.Error,"exit status 1:","",1)
@@ -203,7 +203,6 @@ func (j *Job) Run() {
 	j.task.PrevTime = t.Unix()
 	j.task.ExecuteTimes++
 	j.task.Update("PrevTime", "ExecuteTimes")
-	j.task.title
 
 	// 发送邮件通知
 	if (j.task.Notify == 1 && err != nil) || j.task.Notify == 2 {
